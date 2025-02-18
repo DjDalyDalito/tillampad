@@ -7,6 +7,8 @@ class ChessBoard
   attr_accessor :board, :tile_size, :current_turn, :selected_piece #attr skapar getter setter funktioner så vi slipper skapa egna getter setter funktioner för alla variabler, getter returnerar setter tilldelar
   #minnesregel: vi behöver ändast passera in argument och parametrar som människan/spelaren påverkar, ENDAST EXTERN DATA!!!
 
+  #initierar ett nytt schackbräde, sätter upp pjäser och ritar ut brädet. inga parametrar
+
   def initialize
     @board = Array.new(8) { Array.new(8, nil) }
     @tile_size = 75 # Storlek på varje ruta i pixlar
@@ -16,12 +18,16 @@ class ChessBoard
     draw_board #Rita brädet som sen ritar pjäser
   end
 
+  # Placerar ut shackpjäserna på sina startpositioner, inga parametrar, inga returvärden (ändrar bara brädets tillstånd)
+
   def setup_pieces
     @board[0] = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']#Svarta pjäser
     @board[1] = Array.new(8, 'P')# Svarta bönder
     @board[6] = Array.new(8, 'p')# Vita bönder
     @board[7] = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']#Vita pjäser
   end
+
+  # ritar ut schackbrädet, inga parametrar, inga returvärden (ritar direkt i fönstret)
 
   def draw_board
     # Rensa skärmen
@@ -42,13 +48,15 @@ class ChessBoard
     draw_pieces
   end
 
+  #ritar ut pjäserna
+
   def draw_pieces
     # Visa pjäserna på brädet
     @board.each_with_index do |row, row_index|
       row.each_with_index do |cell, col_index|
         next if cell.nil?
 
-        piece_color = cell == cell.upcase ? 'black' : 'white' # Svarta stora bokstäver
+        piece_color = cell == cell.upcase ? 'black' : 'white' #svarta = stora bokstäver, vita = små bokstäver
         Text.new(
           cell,
           x: col_index * @tile_size + @tile_size / 3,
@@ -59,6 +67,8 @@ class ChessBoard
       end
     end
   end
+
+  # hanterar ett musklick genom att konvertera pixelkoordinater till rutor på mitt brädee, väljer antingen en pjäs eller genomför ett drag
 
   def handle_click(x, y)
     if checkmate?(@current_turn) #skickar in 'white' eller 'black' till funktionen checkmate?, om den returnerar true, kör!
