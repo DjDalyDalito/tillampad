@@ -120,7 +120,7 @@ class ChessBoard
 
   #konverterar rad -och kolumnindex till schacknotation (t.ex "a1"). parametrar: radindex, kolumnindex, returnvärde: en sträng med positionen i schacknotation. 
   def grid_to_position(row, col)
-    "#{(col + 'a'.ord).chr}#{8 - row}" #taget från internet skit i att komma ihåg detta just nu
+    "#{(col + 'a'.ord).chr}#{8 - row}" #taget från internet skit i att lära dig detta just nu
   end
 
   #hittar positionen för kungen för angiven färg. parametrar: color = en sträng ('white' elr 'black'). returvärde: En array [rad, kolumn] för kungens position, eller då nil om den inte hittas
