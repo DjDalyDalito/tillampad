@@ -13,7 +13,6 @@ class ChessBoard
   #minnesregel: vi behöver ändast passera in argument och parametrar som människan/spelaren påverkar, ENDAST EXTERN DATA!!!
 
   #initierar ett nytt schackbräde, sätter upp pjäser och ritar ut brädet. inga parametrar
-
   def initialize
     @board = Array.new(8) { Array.new(8, nil) }
     @tile_size = 75 # Storlek på varje ruta i pixlar
@@ -24,7 +23,6 @@ class ChessBoard
   end
 
   # Placerar ut shackpjäserna på sina startpositioner, inga parametrar, inga returvärden (ändrar bara brädets tillstånd)
-
   def setup_pieces
     @board[0] = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']#Svarta pjäser
     @board[1] = Array.new(8, 'P')# Svarta bönder
@@ -33,7 +31,6 @@ class ChessBoard
   end
 
   # ritar ut schackbrädet, inga parametrar, inga returvärden (ritar direkt i fönstret)
-
   def draw_board
     # Rensa skärmen
     Window.clear
@@ -54,7 +51,6 @@ class ChessBoard
   end
 
   #ritar ut pjäserna
-
   def draw_pieces
     # Visa pjäserna på brädet
     @board.each_with_index do |row, row_index|
@@ -74,7 +70,6 @@ class ChessBoard
   end
 
   # hanterar ett musklick genom att konvertera pixelkoordinater till rutor på mitt brädee, väljer antingen en pjäs eller genomför ett drag
-
   def handle_click(x, y)
 
     row, col = pixel_to_grid(x, y) #om vi passerar in x=80 och y=100 i funktionen handle_click så konverterar vi nu dessa kordinater till row och col mha funktionen pixel_to_grid
@@ -87,7 +82,6 @@ class ChessBoard
   end
   
   #väljer en pjäs baserat på rad och kolumn om den tillhör spelaren vars tur det är, parametrar: row = radindex för vald ruta, col = kolumnindex för vald ruta, inget returvärde (uppdaterar @selected_piece)
-
   def select_piece(row, col)
     piece = @board[row][col] #board [0][0] = a1 
     if piece && piece_color(piece) == @current_turn
@@ -99,7 +93,6 @@ class ChessBoard
   end
 
   #Utför ett drag från starttposition till en målposition om draget är gilltigt samt uppdaterar brädet och växlar tur. parametrar: array [rad, kolumn] för startpositionen, array [rad, kolumn] för målpositionen, inga returvärden men ändrar spelets tillstånd
-
   def move_piece(from, to)
     if valid_move?(from, to) && !move_puts_in_check?(from, to, @current_turn) && piece_color(@board[to[0]][to[1]]) != @current_turn
       from_row, from_col = from
@@ -119,7 +112,6 @@ class ChessBoard
   end
 
   #Konverterar pixelkoordinater till motssvarande rad och column på brädet. parametrar: x = x-koordinat (pixlar), y = y-koordinat (pixlar), retunvärde: En array med [rad, kolumn]
-
   def pixel_to_grid(x, y)
     row = (y / @tile_size).to_i#@title_size=75 om y=300 => 300 delat på 75 = 4 = rad 4
     col = (x / @tile_size).to_i#samma
@@ -127,13 +119,11 @@ class ChessBoard
   end
 
   #konverterar rad -och kolumnindex till schacknotation (t.ex "a1"). parametrar: radindex, kolumnindex, returnvärde: en sträng med positionen i schacknotation. 
-
   def grid_to_position(row, col)
-    "#{(col + 'a'.ord).chr}#{8 - row}" #taget från internet skit i att lära dig detta just nu
+    "#{(col + 'a'.ord).chr}#{8 - row}" #taget från internet skit i att komma ihåg detta just nu
   end
 
   #hittar positionen för kungen för angiven färg. parametrar: color = en sträng ('white' elr 'black'). returvärde: En array [rad, kolumn] för kungens position, eller då nil om den inte hittas
-
   def king_position(color)
     @board.each_with_index do |row, row_index| #row = array med celler (8st celler), row index = vilken rad och col index = vilken kolumn, cell = bokstav
       row.each_with_index do |cell, col_index|
