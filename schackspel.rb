@@ -1,6 +1,11 @@
+#Schackspel.rb
+#Namn: Oliver Nyström
+#Datum: 2025-02-18
+#Schackspel
+
 require 'ruby2d'
 
-# Fönsterinställningar
+#Fönsterinställningar (Ruby 2D inställningar)
 set width: 600, height: 600, background: 'white', title: 'Schackspel'
 
 class ChessBoard
@@ -71,13 +76,7 @@ class ChessBoard
   # hanterar ett musklick genom att konvertera pixelkoordinater till rutor på mitt brädee, väljer antingen en pjäs eller genomför ett drag
 
   def handle_click(x, y)
-    if checkmate?(@current_turn) #skickar in 'white' eller 'black' till funktionen checkmate?, om den returnerar true, kör!
-      winner = @current_turn == 'white' ? 'black' : 'white'
-      puts "Schackmatt! #{winner.capitalize} vinner spelet."
-      Window.close
-      exit
-    end
-  
+
     row, col = pixel_to_grid(x, y) #om vi passerar in x=80 och y=100 i funktionen handle_click så konverterar vi nu dessa kordinater till row och col mha funktionen pixel_to_grid
     if @selected_piece.nil?
       select_piece(row, col)
@@ -87,6 +86,7 @@ class ChessBoard
     end
   end
   
+  #väljer en pjäs baserat på rad och kolumn om den tillhör spelaren vars tur det är, parametrar: row = radindex för vald ruta, col = kolumnindex för vald ruta, inget returvärde (uppdaterar @selected_piece)
 
   def select_piece(row, col)
     piece = @board[row][col] #board [0][0] = a1 
@@ -97,6 +97,8 @@ class ChessBoard
       puts "Ingen giltig pjäs vald."
     end
   end
+
+  #Utför ett drag från starttposition till en målposition om draget är gilltigt samt uppdaterar brädet och växlar tur. parametrar: array [rad, kolumn] för startpositionen, array [rad, kolumn] för målpositionen, inga returvärden men ändrar spelets tillstånd
 
   def move_piece(from, to)
     if valid_move?(from, to) && !move_puts_in_check?(from, to, @current_turn) && piece_color(@board[to[0]][to[1]]) != @current_turn
@@ -116,15 +118,21 @@ class ChessBoard
     end    
   end
 
+  #Konverterar pixelkoordinater till motssvarande rad och column på brädet. parametrar: x = x-koordinat (pixlar), y = y-koordinat (pixlar), retunvärde: En array med [rad, kolumn]
+
   def pixel_to_grid(x, y)
     row = (y / @tile_size).to_i#@title_size=75 om y=300 => 300 delat på 75 = 4 = rad 4
     col = (x / @tile_size).to_i#samma
     [row, col]
   end
 
+  #konverterar rad -och kolumnindex till schacknotation (t.ex "a1"). parametrar: radindex, kolumnindex, returnvärde: en sträng med positionen i schacknotation. 
+
   def grid_to_position(row, col)
-    "#{(col + 'a'.ord).chr}#{8 - row}"
+    "#{(col + 'a'.ord).chr}#{8 - row}" #taget från internet skit i att lära dig detta just nu
   end
+
+  #hittar positionen för kungen för angiven färg. parametrar: color = en sträng ('white' elr 'black'). returvärde: En array [rad, kolumn] för kungens position, eller då nil om den inte hittas
 
   def king_position(color)
     @board.each_with_index do |row, row_index| #row = array med celler (8st celler), row index = vilken rad och col index = vilken kolumn, cell = bokstav
@@ -135,6 +143,7 @@ class ChessBoard
     nil
   end
 
+  #Kollar om kungen för angiven färg är i schack. parametrar: color = sträng 'white' / 'black'. returvärde: , en bool, true om kungen är i schack, false om inte
   def in_check?(color)
     king_pos = king_position(color)#hämta kungens position
     return false if king_pos.nil?#returnera false om kungen inte hittades
@@ -149,7 +158,8 @@ class ChessBoard
     end
     false
   end
-  
+
+  #Kollar om spelaren för angiven färg är i schackmatt. parametrar: color sträng 'white' 'black'. returvärde: en bool, true om schackmatt, annars false, spelet avslutas om schackmatt.
   def checkmate?(color)
     return false unless in_check?(color) # Inte schack? Då inte schackmatt
   
@@ -166,10 +176,12 @@ class ChessBoard
         end
       end
     end
-    Window.close
+      winner = @current_turn == 'white' ? 'black' : 'white'
+      puts "Checkmate! #{winner.capitalize} wins."
+      Window.close
   end
   
-
+  #kollar om ett föreslaget drag skulle sätta spelarens egen kung i schack. parametrar: startposition = array [rad, kolumn], målposition, spelarens färg ('white' elr 'black'). returnvärde: en bool, true om draget resulterar i schack, annars false
   def move_puts_in_check?(from, to, color)#from = array, to = array och color = string
     backup_board = Marshal.load(Marshal.dump(@board)) #skapa en kopia av brädet
   
@@ -184,13 +196,13 @@ class ChessBoard
     result
   end
   
-
+  #bestämmer färgen på en given pjäs. parametrar: piece = en sträng som representerar pjäsen (stor bokstav = svart pjäa, liten bokstav = vit). returnvärde: 'black', 'white' eller nil om tom ruta
   def piece_color(piece)
     return nil if piece.nil?
     piece == piece.upcase ? 'black' : 'white'
   end
 
-  # Pjäsernas valideringsregler
+  #avgör om ett föreslaget drag är tillåtet baserat på pjäsen och spelets regler. parametrar: from = startposition, to = målposition, moving_color = färgen på spelaren som gör draget standard är färgen i @current_turn, ignore_chack = om true så ignoreras kontrollen schack standard är false. returvärde: true om draget är giltigt, annars false
   def valid_move?(from, to, moving_color: @current_turn, ignore_check: false) 
     #vi kan använda @current_turn istället för moving_color då det redan är en string men detta gör koden mer läsbar samt flexibel(liten onödigt kanske)
     #ignore_check sätts endast till true i en annan funktion om det är så att draget som spelaren vill göra kommer leda till att deras kung blir i shack, när den är sätt till true så sätts draget till false i denna funktionen
@@ -220,9 +232,9 @@ class ChessBoard
     end
   end
   
-  # Implementera pjäsernas specifika regler här (valid_pawn_move?, valid_rook_move?, etc.)
+  #Implementera pjäsernas specifika regler här (valid_pawn_move?, valid_rook_move?osv...)
 
-  # Kontroll av blockerad väg
+  #kollar att det inte finns några pjäser mellan start- och målpositionen. parametrar: from = startpositionen, to = målpositionen. returvärde: true om vägen är fri, annars false
   def clear_path?(from, to)
     from_row, from_col = from #ex [2,3]
     to_row, to_col = to #ex [5.3]
@@ -240,6 +252,7 @@ class ChessBoard
     true
   end
 
+  #avgör om ett drag med en bonde är tillåtet, enda specifika funktionen som behöver piece som parameter eftersom vit endast får röra sig uppåt och svart nedåt 
   def valid_pawn_move?(from, to, piece)
     from_row, from_col = from
     to_row, to_col = to
@@ -256,6 +269,7 @@ class ChessBoard
     false
   end
 
+  #avgör om ett drag med en rook är tillåtet
   def valid_rook_move?(from, to)
     from_row, from_col = from
     to_row, to_col = to
@@ -264,6 +278,7 @@ class ChessBoard
     clear_path?(from, to) #Kontrollera att inget blockerar vägen
   end
 
+  #avgör om ett drag med en löpare är tillåtet
   def valid_bishop_move?(from, to)
     from_row, from_col = from
     to_row, to_col = to
@@ -272,10 +287,12 @@ class ChessBoard
     clear_path?(from, to) #Kontrollera att inget blockerar vägen
   end
 
+  #avgör om ett drag med en drottning är tillåtet
   def valid_queen_move?(from, to)
     valid_rook_move?(from, to) || valid_bishop_move?(from, to) # Kombinerar torn och löpare
   end
 
+  #avgör om ett drag med en kung är tillåtet
   def valid_king_move?(from, to) #[1,2], [1,5]
     from_row, from_col = from #1, 2
     to_row, to_col = to #1, 5
@@ -297,6 +314,7 @@ class ChessBoard
     row_diff <= 1 && col_diff <= 1 && !in_check #0 < 1 men 3 > 1 => inte giltigt
 end
 
+  #avgör om ett drag med en häst är tillåtet
   def valid_knight_move?(from, to) #[1,2], [2,4]
     from_row, from_col = from #1, 2
     to_row, to_col = to#2, 4
